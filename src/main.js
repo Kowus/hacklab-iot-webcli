@@ -6,6 +6,7 @@ import App from "./App";
 import ElementUI from "element-ui";
 import locale from "element-ui/lib/locale/lang/en";
 import "element-ui/lib/theme-chalk/index.css";
+import store from "./plugins/store";
 // import { Client } from "paho-mqtt";
 
 let username = "miidvfuj";
@@ -23,6 +24,7 @@ let options = {
     // Once a connection has been made, make a subscription and send a message.
     console.log("onConnect");
     client.subscribe("/cloudmqtt");
+    client.subscribe("/sensor");
     let message = new Paho.MQTT.Message("Hello CloudMQTT");
     message.destinationName = "/cloudmqtt";
     client.send(message);
@@ -59,7 +61,14 @@ function onConnectionLost(responseObject) {
 
 // called when a message arrives
 function onMessageArrived(message) {
-  console.log("onMessageArrived:" + message.payloadString);
+  console.log(
+    `Destination ${message.destinationName} received ${message.payloadString}`
+  );
+  if (message.destinationName === "/sensor") {
+    console.log("received sensor data");
+    let pld = JSON.parse(message.payloadString);
+    store.commit("setSensor", pld);
+  }
 }
 
 Vue.prototype.$mqtt = client;
@@ -68,6 +77,7 @@ new Vue({
   el: "#app",
   components: { App },
   template: "<App/>",
+  store,
   mqtt: client
 });
 
