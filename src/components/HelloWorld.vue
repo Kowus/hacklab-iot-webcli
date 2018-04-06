@@ -70,7 +70,7 @@ export default {
       this.$mqtt.send(message);
     },
     momentize(date) {
-      return moment().format("MMM/DD/YYYY [at] HH:mm");
+      return moment(date).format("MMM/DD/YYYY [at] HH:mm");
     }
   }
 };
